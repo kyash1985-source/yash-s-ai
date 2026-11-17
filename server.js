@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(express.static('public'));
 
 const API_KEY = process.env.API_KEY;
-const BASE_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent";
+const BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent";
 
 app.post('/chat', async (req, res) => {
     try {
