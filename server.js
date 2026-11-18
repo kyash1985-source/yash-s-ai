@@ -10,7 +10,7 @@ const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 
 app.post('/chat', async (req, res) => {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
         const result = await model.generateContent(req.body.message);
         const response = await result.response;
         const text = response.text();
