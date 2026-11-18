@@ -10,11 +10,36 @@ const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 
 app.post('/chat', async (req, res) => {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
-        const result = await model.generateContent(req.body.message);
-        const response = await result.response;
-        const text = response.text();
-        res.json({ reply: text });
+        // Try models in order - best to worst
+        const modelNames = [
+            "gemini-2.0-flash-exp",
+            "gemini-2.0-flash",
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-pro-latest",
+            "gemini-1.5-flash",
+            "gemini-1.5-pro",
+            "gemini-pro"
+        ];
+
+        let lastError;
+        for (const modelName of modelNames) {
+            try {
+                const model = genAI.getGenerativeModel({ model: modelName });
+                const result = await model.generateContent(req.body.message);
+                const response = await result.response;
+                const text = response.text();
+                console.log(`✅ Using model: ${modelName}`);
+                return res.json({ reply: text });
+            } catch (err) {
+                console.warn(`❌ Model ${modelName} failed: ${err.message}`);
+                lastError = err;
+                continue;
+            }
+        }
+
+        // All models failed
+        console.error("All models failed. Last error:", lastError);
+        res.status(500).json({ error: lastError.message });
     } catch (error) {
         console.error("AI Error:", error);
         res.status(500).json({ error: error.message });
